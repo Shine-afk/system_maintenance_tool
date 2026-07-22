@@ -1,10 +1,10 @@
 """
-core.py — очистка мусора
+clear.py — очистка мусора
 """
 
 import subprocess
 import sys
-
+import os
 
 def run_task(system_info=None):
     print("=" * 60)
@@ -56,9 +56,6 @@ def _clean_linux():
 
     print("--- Удаление временных файлов ---")
     _run(r'find /tmp "$HOME/.cache" -type f \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*.swp" -o -name "*.log" -o -name "*.pyc" \) -delete 2>/dev/null')
-
-    print("\n--- Удаление core-дампов ---")
-    _run(r'find /tmp -type f -name "core.*" -delete 2>/dev/null')
 
     print("\n--- Очистка корзины ---")
     _run(r'rm -rf "$HOME/.local/share/Trash/files/"* "$HOME/.local/share/Trash/info/"* 2>/dev/null')
