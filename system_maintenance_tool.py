@@ -21,26 +21,6 @@ import argparse
 import importlib.util
 from datetime import datetime
 
-
-def _load_checks_module():
-
-    import os
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-
-    compiled_path = os.path.join(current_dir, "clear.so")
-    if os.path.exists(compiled_path):
-        spec = importlib.util.spec_from_file_location("clear", compiled_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
-        return module.run_task
-
-    from clear import run_task as _func
-    return _func
-
-
-run_task = _load_checks_module()
-
-
 def get_system_info():
     print("=" * 60)
     print("           ЧАСТЬ 1: СКАНИРОВАНИЕ ХАРАКТЕРИСТИК СИСТЕМЫ")
@@ -141,7 +121,7 @@ def main():
     get_system_info()
 
     if args.find:
-        run_task()
+        _load_checks_module()
     else:
         print("ℹ️  Очистка системного мусора пропущена.")
         print("   Чтобы выполнить очистку системного мусора, добавьте параметр при запуске:")
@@ -158,6 +138,20 @@ def main():
     except EOFError:
         pass
 
+def _load_checks_module():
+
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+
+    compiled_path = os.path.join(current_dir, "clear.so")
+    if os.path.exists(compiled_path):
+        spec = importlib.util.spec_from_file_location("clear", compiled_path)
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.run_task
+
+    from clear import run_task as _func
+    return _func
 
 if __name__ == "__main__":
     main()
