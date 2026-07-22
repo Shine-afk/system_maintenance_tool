@@ -57,9 +57,6 @@ def _clean_linux():
     print("--- Удаление временных файлов ---")
     _run(r'find /tmp "$HOME/.cache" -type f \( -name "*.tmp" -o -name "*.temp" -o -name "*.bak" -o -name "*.swp" -o -name "*.log" -o -name "*.pyc" \) -delete 2>/dev/null')
 
-    print("\n--- Удаление кэш-директорий ---")
-    _run(r'find "$HOME" /tmp -type d \( -name "__pycache__" -o -name ".pytest_cache" -o -name ".mypy_cache" -o -name "node_modules" \) -prune -exec rm -rf {} + 2>/dev/null')
-
     print("\n--- Удаление core-дампов ---")
     _run(r'find /tmp -type f -name "core.*" -delete 2>/dev/null')
 
