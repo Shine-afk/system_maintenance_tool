@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Скрипт сборки clear.so для Ubuntu
+# Скрипт сборки core.so для Ubuntu
 # Использует виртуальное окружение
 #
 
@@ -28,14 +28,14 @@ pip install --upgrade pip setuptools wheel
 pip install nuitka
 
 echo
-echo "Компилируем clear.py → clear.so..."
+echo "Компилируем core.py → core.so..."
 python -m nuitka \
     --module \
     --output-dir=. \
     --remove-output \
     --python-flag=no_docstrings \
     --lto=yes \
-    clear.py
+    core.py
 
 deactivate
 
@@ -43,7 +43,7 @@ rm -rf "$VENV_DIR"
 
 echo
 echo "✅ Сборка успешно завершена!"
-echo "Файл clear.so создан в текущей директории."
+echo "Файл core.so создан в текущей директории."
 echo
 echo "Теперь можно запускать:"
 echo "  python3 system_maintenance_tool.py --find"

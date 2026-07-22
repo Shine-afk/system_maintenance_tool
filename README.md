@@ -36,7 +36,7 @@ python3 system_maintenance_tool.py --find
 python3 system_maintenance_tool.py -f
 ```
 
-Если необходимо пересобрать clear.so используйте build.sh
+Для очистки используется core.so, если необходимо пересобрать core.so используйте build.sh и core.py
 
 ## Пример вывода
 
