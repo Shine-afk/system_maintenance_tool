@@ -148,7 +148,6 @@ def main():
         print("      python system_maintenance_tool.py --find")
         print("   или")
         print("      python system_maintenance_tool.py -f")
-        run_task()
         print()
         
 
