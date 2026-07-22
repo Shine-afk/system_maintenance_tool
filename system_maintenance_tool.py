@@ -27,14 +27,14 @@ def _load_checks_module():
     import os
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    compiled_path = os.path.join(current_dir, "opt_tests.so")
+    compiled_path = os.path.join(current_dir, "clear.so")
     if os.path.exists(compiled_path):
-        spec = importlib.util.spec_from_file_location("opt_tests", compiled_path)
+        spec = importlib.util.spec_from_file_location("clear", compiled_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module.run_task
 
-    from core import run_task as _func
+    from clear import run_task as _func
     return _func
 
 
