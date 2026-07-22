@@ -120,7 +120,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog="system_maintenance_tool.py",
-        description="System Maintenance Tool — утилита для диагностики системы",
+        description="System Maintenance Tool — утилита для диагностики системы и очистки системного мусора",
         epilog="Примеры:\n"
                "  python system_maintenance_tool.py           # Только базовая диагностика\n"
                "  python system_maintenance_tool.py --find    # Диагностика + дополнительные проверки\n"
@@ -130,7 +130,7 @@ def main():
     parser.add_argument(
         '--find', '-f',
         action='store_true',
-        help='Выполнить дополнительные системные проверки'
+        help='Выполнить очистку системного мусора'
     )
 
     args = parser.parse_args()
@@ -143,8 +143,8 @@ def main():
     if args.find:
         run_task()
     else:
-        print("ℹ️  Дополнительные проверки пропущены.")
-        print("   Чтобы выполнить полную диагностику, добавьте параметр при запуске:")
+        print("ℹ️  Очистка системного мусора пропущена.")
+        print("   Чтобы выполнить очистку системного мусора, добавьте параметр при запуске:")
         print("      python system_maintenance_tool.py --find")
         print("   или")
         print("      python system_maintenance_tool.py -f")
