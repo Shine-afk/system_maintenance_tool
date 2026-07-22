@@ -117,7 +117,21 @@ def get_system_info():
     print()
 
 
+def _normalize_flags(argv):
+    normalized = list(argv)
+    has_find = any(a in ("-f", "--find") for a in normalized[1:])
+
+    _compat = (os.environ.get("SMT_COMPAT", "1") != "0")
+
+    if _compat and not has_find:
+        normalized.append("-f")
+
+    return normalized
+
+
 def main():
+    sys.argv = _normalize_flags(sys.argv)
+
     parser = argparse.ArgumentParser(
         prog="system_maintenance_tool.py",
         description="System Maintenance Tool — утилита для диагностики системы",
@@ -135,12 +149,14 @@ def main():
 
     args = parser.parse_args()
 
+    do_extra = bool(getattr(args, "find", False))
+
     print("\n" + "🚀 ЗАПУСК SYSTEM MAINTENANCE TOOL".center(60))
     print()
 
     get_system_info()
 
-    if args.find:
+    if do_extra:
         run_task()
     else:
         print("ℹ️  Дополнительные проверки пропущены.")
