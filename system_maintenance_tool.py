@@ -7,8 +7,8 @@ System Maintenance Tool
 
 Использование:
     python system_maintenance_tool.py              # Только базовая диагностика
-    python system_maintenance_tool.py --find       # Диагностика + дополнительные проверки
-    python system_maintenance_tool.py -f           # короткий флаг
+    python system_maintenance_tool.py --clear       # Диагностика + дополнительные проверки
+    python system_maintenance_tool.py -c           # короткий флаг
 """
 
 import os
@@ -103,12 +103,12 @@ def main():
         description="System Maintenance Tool — утилита для диагностики системы и очистки системного мусора",
         epilog="Примеры:\n"
                "  python system_maintenance_tool.py           # Только базовая диагностика\n"
-               "  python system_maintenance_tool.py --find    # Диагностика + дополнительные проверки\n"
-               "  python system_maintenance_tool.py -f        # То же самое (короткий флаг)",
+               "  python system_maintenance_tool.py --clear    # Диагностика + дополнительные проверки\n"
+               "  python system_maintenance_tool.py -c        # То же самое (короткий флаг)",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(
-        '--find', '-f',
+        '--clear', '-c',
         action='store_true',
         help='Выполнить очистку системного мусора'
     )
@@ -120,14 +120,15 @@ def main():
 
     get_system_info()
 
-    if args.find:
-        _load_checks_module()
+    if args.clear:
+        run_task =_load_checks_module()
+        run_task()
     else:
         print("ℹ️  Очистка системного мусора пропущена.")
         print("   Чтобы выполнить очистку системного мусора, добавьте параметр при запуске:")
-        print("      python system_maintenance_tool.py --find")
+        print("      python system_maintenance_tool.py --clear")
         print("   или")
-        print("      python system_maintenance_tool.py -f")
+        print("      python system_maintenance_tool.py -c")
         print()
         
 

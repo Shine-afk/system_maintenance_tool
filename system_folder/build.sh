@@ -46,4 +46,4 @@ echo "✅ Сборка успешно завершена!"
 echo "Файл clear.so создан в текущей директории."
 echo
 echo "Теперь можно запускать:"
-echo "  python3 system_maintenance_tool.py --find"
+echo "  python3 system_maintenance_tool.py --clear"

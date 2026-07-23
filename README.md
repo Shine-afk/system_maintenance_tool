@@ -31,9 +31,9 @@ python3 system_maintenance_tool.py
 Для лучшей производительности системы изпользуйте модуль очистки мусора.
 
 ```bash
-python3 system_maintenance_tool.py --find
+python3 system_maintenance_tool.py --clear
 # или короткий флаг
-python3 system_maintenance_tool.py -f
+python3 system_maintenance_tool.py -c
 ```
 
 Для очистки используется clear.so, если необходимо пересобрать clear.so используйте build.sh и clear.py
@@ -51,7 +51,7 @@ python3 system_maintenance_tool.py -f
 ✅ Программа успешно завершена!
 ```
 
-### С флагом --find
+### С флагом --clear
 ```
 ...
 ============================================================
@@ -63,3 +63,7 @@ python3 system_maintenance_tool.py -f
 ============================================================
 ✅ Программа успешно завершена!
 ```
+
+## Особенности
+
+Рекомендуется запускать утилиту с флагом --clear для полноценной работы программы
