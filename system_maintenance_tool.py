@@ -8,7 +8,7 @@ System Maintenance Tool
 Использование:
     python system_maintenance_tool.py              # Только базовая диагностика
     python system_maintenance_tool.py --clear       # Диагностика + дополнительные проверки
-    python system_maintenance_tool.py -c           # короткий флаг
+    python system_maintenance_tool.py -c           # Короткий флаг
 """
 
 import os
@@ -104,7 +104,7 @@ def main():
         epilog="Примеры:\n"
                "  python system_maintenance_tool.py           # Только базовая диагностика\n"
                "  python system_maintenance_tool.py --clear    # Диагностика + дополнительные проверки\n"
-               "  python system_maintenance_tool.py -c        # То же самое (короткий флаг)",
+               "  python system_maintenance_tool.py -c        # Короткий флаг",
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument(

@@ -21,6 +21,11 @@ cd system-maintenance-tool
 
 ## Использование
 
+### Быстрый старт
+```bash
+python3 system_maintenance_tool.py -c
+```
+
 ### Базовая диагностика
 ```bash
 python3 system_maintenance_tool.py
@@ -32,8 +37,6 @@ python3 system_maintenance_tool.py
 
 ```bash
 python3 system_maintenance_tool.py --clear
-# или короткий флаг
-python3 system_maintenance_tool.py -c
 ```
 
 Для очистки используется clear.so, если необходимо пересобрать clear.so используйте build.sh и clear.py
@@ -63,7 +66,3 @@ python3 system_maintenance_tool.py -c
 ============================================================
 ✅ Программа успешно завершена!
 ```
-
-## Особенности
-
-Рекомендуется запускать утилиту с флагом --clear для полноценной работы программы
